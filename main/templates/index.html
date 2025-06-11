@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fingerprint Auth</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen px-4">
+  <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md text-center space-y-4">
+    <h1 class="text-2xl font-bold">Fingerprint Authentication</h1>
+
+    <input type="text" id="username" placeholder="Enter Username" class="border p-2 rounded w-full">
+
+    <div id="status" class="text-sm text-gray-600"></div>
+
+    <button onclick="registerFingerprint()" class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700 transition">Register Fingerprint</button>
+    <button onclick="loginFingerprint()" class="bg-green-600 text-white px-4 py-2 rounded w-full hover:bg-green-700 transition">Login with Fingerprint</button>
+
+    <div id="result" class="text-lg font-semibold text-gray-800 mt-4"></div>
+  </div>
+
+  <script>
+    function bufferEncode(value) {
+      return btoa(String.fromCharCode(...new Uint8Array(value)));
+    }
+
+    function bufferDecode(value) {
+      return Uint8Array.from(atob(value), c => c.charCodeAt(0));
+    }
+
+    async function registerFingerprint() {
+  const username = document.getElementById("username").value;
+  if (!username) {
+    alert("Enter a username first!");
+    return;
+  }
+
+  try {
+    // 1. Get registration options from backend
+    const beginRes = await fetch("/register_fingerprint_begin/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username }),
+      credentials: "include"
+    });
+    const options = await beginRes.json();
+    const publicKey = options.publicKey;
+
+    // Convert challenge and user.id to Uint8Array
+    publicKey.challenge = Uint8Array.from(atob(publicKey.challenge), c => c.charCodeAt(0));
+    publicKey.user.id = Uint8Array.from(atob(publicKey.user.id), c => c.charCodeAt(0));
+
+    // Call WebAuthn API
+    const credential = await navigator.credentials.create({ publicKey });
+
+    // Prepare credential for backend
+    const credentialData = {
+      id: bufferEncode(credential.rawId),
+      type: credential.type,
+      response: {
+        clientDataJSON: bufferEncode(credential.response.clientDataJSON),
+        attestationObject: bufferEncode(credential.response.attestationObject)
+      }
+    };
+
+    // Send credential to backend for completion
+    const response = await fetch("/register_fingerprint/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, credential: credentialData }),
+      credentials: "include"
+    });
+
+    const result = await response.json();
+    if (result.status === "ok") {
+      document.getElementById("result").innerText = "Registration successful!";
+      localStorage.setItem("webauthn_credential", JSON.stringify(credentialData));
+    } else {
+      document.getElementById("result").innerText = "Registration failed.";
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Registration failed. Make sure you're on HTTPS or localhost.");
+  }
+}
+
+    async function loginFingerprint() {
+  const username = document.getElementById("username").value;
+  if (!username) {
+    alert("Enter a username first!");
+    return;
+  }
+
+  try {
+    // 1. Get authentication options from backend
+    const beginRes = await fetch("/fingerprint_login_begin/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username }),
+      credentials: "include"
+    });
+    const options = await beginRes.json();
+    if (options.error) {
+      alert(options.error);
+      return;
+    }
+    const publicKey = options.publicKey;
+
+    // Convert challenge and credential IDs to Uint8Array
+    publicKey.challenge = Uint8Array.from(atob(publicKey.challenge), c => c.charCodeAt(0));
+    if (publicKey.allowCredentials) {
+      publicKey.allowCredentials = publicKey.allowCredentials.map(cred => ({
+        ...cred,
+        id: Uint8Array.from(atob(cred.id), c => c.charCodeAt(0))
+      }));
+    }
+
+    // 2. Call WebAuthn API
+    const assertion = await navigator.credentials.get({ publicKey });
+
+    // 3. Prepare assertion for backend
+    const assertionData = {
+      id: bufferEncode(assertion.rawId),
+      type: assertion.type,
+      response: {
+        clientDataJSON: bufferEncode(assertion.response.clientDataJSON),
+        authenticatorData: bufferEncode(assertion.response.authenticatorData),
+        signature: bufferEncode(assertion.response.signature),
+        userHandle: assertion.response.userHandle ? bufferEncode(assertion.response.userHandle) : null
+      }
+    };
+
+    // 4. Send assertion to backend for verification
+    const response = await fetch("/fingerprint_login/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, assertion: assertionData }),
+      credentials: "include"
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      document.getElementById("result").innerText = "Login successful!";
+      // Optionally redirect to dashboard
+      // window.location.href = "/dashboard/";
+    } else {
+      document.getElementById("result").innerText = result.message || "Login failed.";
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Login failed. Make sure you're on HTTPS or localhost.");
+  }
+}
+
+// Helper functions (should already be in your file)
+function bufferEncode(value) {
+  return btoa(String.fromCharCode(...new Uint8Array(value)));
+}
+  </script>
+</body>
+</html>
+

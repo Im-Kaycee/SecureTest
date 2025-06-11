@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
+  <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md text-center space-y-4">
+    <h1 class="text-2xl font-bold text-green-600">Welcome, {{ student.user.get_full_name }}</h1>
+    <p class="text-gray-700">Matric No: {{ student.matric_no }}</p>
+
+    {% if eligible_courses %}
+      <h2 class="text-xl font-semibold text-gray-800 mt-4">Eligible Courses:</h2>
+      <ul class="list-disc list-inside text-gray-700">
+        {% for rec in eligible_courses %}
+          <li>{{ rec.course.code }} - {{ rec.course.title }}</li>
+        {% endfor %}
+      </ul>
+      <a href="#" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">View Dummy Exam</a>
+    {% else %}
+      <p class="text-red-500 mt-4 font-semibold">You are not eligible for exams.</p>
+    {% endif %}
+  </div>
+</body>
+</html>
