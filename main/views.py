@@ -18,7 +18,7 @@ from fido2.server import Fido2Server
 
 from .models import Student, AttendanceRecord
 
-rp = PublicKeyCredentialRpEntity(id="5cb6-102-91-77-206.ngrok-free.app", name="Demo ExamAuth")
+rp = PublicKeyCredentialRpEntity(id="84bb-102-91-77-191.ngrok-free.app", name="Demo ExamAuth")
 server = Fido2Server(rp)
 
 # --- Home page (same as your index.html) ---
@@ -90,16 +90,20 @@ def fingerprint_login_begin(request):
             return JsonResponse({"success": False, "message": "Student not found"})
 
         credential_data = student.fingerprint_credential
-        credential_id = base64.b64decode(credential_data["id"])
-        public_key = base64.b64decode(credential_data["public_key"])
-        sign_count = credential_data["sign_count"]
+        if not credential_data:
+            return JsonResponse({"success": False, "message": "No fingerprint registered"})
 
-        allow_credentials = [{
-            "type": "public-key",
-            "id": credential_id,
-            "publicKey": public_key,
-            "signCount": sign_count
-        }]
+        # Create credential descriptor for authentication
+        credential_id = base64.b64decode(credential_data["id"])
+        
+        allow_credentials = [
+            PublicKeyCredentialDescriptor(
+                type="public-key",
+                id=credential_id
+            )
+        ]
+
+        # Begin authentication
         auth_data, state = server.authenticate_begin(allow_credentials)
         request.session["fido2_authentication_state"] = state
 
@@ -108,12 +112,25 @@ def fingerprint_login_begin(request):
             options = auth_data.dict()
         else:
             options = dict(auth_data)
-        options = b64encode_bytes(options)
+        
+        # Properly encode the response
+        publicKey = options["publicKey"]
+        if isinstance(publicKey["challenge"], bytes):
+            publicKey["challenge"] = base64.b64encode(publicKey["challenge"]).decode()
+        
+        # Encode credential IDs in allowCredentials
+        if "allowCredentials" in publicKey:
+            for cred in publicKey["allowCredentials"]:
+                if isinstance(cred["id"], bytes):
+                    cred["id"] = base64.b64encode(cred["id"]).decode()
 
         return JsonResponse(options, safe=False)
+    
     return JsonResponse({"error": "Invalid request"}, status=400)
 # --- Fingerprint Login ---
 from fido2.webauthn import PublicKeyCredentialDescriptor
+from fido2 import cbor
+from fido2.webauthn import AttestedCredentialData
 
 @csrf_exempt
 def fingerprint_login(request):
@@ -128,49 +145,118 @@ def fingerprint_login(request):
             return JsonResponse({"success": False, "message": "Student not found"})
 
         credential_data = student.fingerprint_credential
-        credential_id = base64.b64decode(credential_data["id"])
-        public_key = base64.b64decode(credential_data["public_key"])
-        sign_count = credential_data["sign_count"]
+        if not credential_data:
+            return JsonResponse({"success": False, "message": "No fingerprint registered"})
 
+        credential_id = base64.b64decode(credential_data["id"])
+        public_key_cbor = base64.b64decode(credential_data["public_key"])
+        sign_count = credential_data["sign_count"]
+        
         state = request.session.get("fido2_authentication_state")
         if not state:
             return JsonResponse({"error": "No authentication state found."}, status=400)
 
-        client_data = CollectedClientData(base64.b64decode(assertion["response"]["clientDataJSON"]))
-        authenticator_data = AuthenticatorData(base64.b64decode(assertion["response"]["authenticatorData"]))
-        signature = base64.b64decode(assertion["response"]["signature"])
+        try:
+            # Decode the assertion data
+            client_data = CollectedClientData(base64.b64decode(assertion["response"]["clientDataJSON"]))
+            authenticator_data = AuthenticatorData(base64.b64decode(assertion["response"]["authenticatorData"]))
+            signature = base64.b64decode(assertion["response"]["signature"])
 
-        # Use PublicKeyCredentialDescriptor for credentials
-        allow_credentials = [
-                PublicKeyCredentialDescriptor(
-                    id=credential_id,
-                    type="public-key",
+            # Decode the public key from CBOR
+            public_key = cbor.decode(public_key_cbor)
+            
+            # Create a credential object that the server expects
+            credential = AttestedCredentialData.create(
+                aaguid=b'\x00' * 16,  # Default AAGUID
+                credential_id=credential_id,
+                public_key=public_key
             )
-        ]
+            
+            # Create the expected credentials list
+            credentials = [credential]
 
-        server.authenticate_complete(
-            state,
-            allow_credentials,
-            credential_id,
-            client_data,
-            authenticator_data,
-            signature
+            # Verify the assertion with the correct method signature
+            server.authenticate_complete(
+                state,
+                credentials,
+                credential_id,
+                client_data,
+                authenticator_data,
+                signature
+            )
+
+            # Update sign count
+            student.fingerprint_credential["sign_count"] = authenticator_data.counter
+            student.save()
+
+            # Eligibility check
+            eligible_courses = AttendanceRecord.objects.filter(
+                student=student, attendance_percentage__gte=75
+            )
+            if eligible_courses.exists():
+                auth_login(request, student.user)
+                return JsonResponse({"success": True})
+            else:
+                return JsonResponse({"success": False, "message": "Not eligible for exam access"})
+
+        except Exception as e:
+            print(f"Authentication error: {e}")
+            return JsonResponse({"success": False, "message": f"Authentication failed: {str(e)}"})
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+@csrf_exempt
+def fingerprint_login_begin(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        username = data.get("username")
+        try:
+            student = Student.objects.get(user__username=username)
+        except Student.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Student not found"})
+
+        credential_data = student.fingerprint_credential
+        if not credential_data:
+            return JsonResponse({"success": False, "message": "No fingerprint registered"})
+
+        # Create credential descriptor for authentication
+        credential_id = base64.b64decode(credential_data["id"])
+        public_key_cbor = base64.b64decode(credential_data["public_key"])
+        public_key = cbor.decode(public_key_cbor)
+        
+        # Create AttestedCredentialData object
+        credential = AttestedCredentialData.create(
+            aaguid=b'\x00' * 16,  # Default AAGUID
+            credential_id=credential_id,
+            public_key=public_key
         )
+        
+        credentials = [credential]
 
-        # Update sign count
-        student.fingerprint_credential["sign_count"] = authenticator_data.counter
-        student.save()
+        # Begin authentication
+        auth_data, state = server.authenticate_begin(credentials)
+        request.session["fido2_authentication_state"] = state
 
-        # Eligibility check
-        eligible_courses = AttendanceRecord.objects.filter(
-            student=student, attendance_percentage__gte=75
-        )
-        if eligible_courses.exists():
-            auth_login(request, student.user)
-            return JsonResponse({"success": True})
+        # Convert to dict and base64-encode bytes fields
+        if hasattr(auth_data, "dict"):
+            options = auth_data.dict()
         else:
-            return JsonResponse({"success": False, "message": "Not eligible for exam access"})
+            options = dict(auth_data)
+        
+        # Properly encode the response
+        publicKey = options["publicKey"]
+        if isinstance(publicKey["challenge"], bytes):
+            publicKey["challenge"] = base64.b64encode(publicKey["challenge"]).decode()
+        
+        # Encode credential IDs in allowCredentials
+        if "allowCredentials" in publicKey:
+            for cred in publicKey["allowCredentials"]:
+                if isinstance(cred["id"], bytes):
+                    cred["id"] = base64.b64encode(cred["id"]).decode()
 
+        return JsonResponse(options, safe=False)
+    
     return JsonResponse({"error": "Invalid request"}, status=400)
 # --- Student Dashboard ---
 @login_required
