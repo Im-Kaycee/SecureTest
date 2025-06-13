@@ -18,7 +18,7 @@ from fido2.server import Fido2Server
 
 from .models import Student, AttendanceRecord
 
-rp = PublicKeyCredentialRpEntity(id="84bb-102-91-77-191.ngrok-free.app", name="Demo ExamAuth")
+rp = PublicKeyCredentialRpEntity(id="e268-102-91-71-60.ngrok-free.app", name="Demo ExamAuth")
 server = Fido2Server(rp)
 
 # --- Home page (same as your index.html) ---
@@ -302,3 +302,11 @@ def register_fingerprint_begin(request):
 
         return JsonResponse(options, safe=False)
     return JsonResponse({"error": "Invalid request"}, status=400)
+from .models import Exam, ExamQuestion
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def exam_questions(request, slug):
+    exam = Exam.objects.get(slug=slug)
+    questions = exam.questions.all()
+    return render(request, "exam_questions.html", {"exam": exam, "questions": questions})

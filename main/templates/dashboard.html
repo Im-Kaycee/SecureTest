@@ -3,25 +3,390 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Dashboard</title>
+  <title>Student Dashboard - SecureTest</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.6s ease-out',
+            'pulse-slow': 'pulse 3s infinite'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+  </style>
 </head>
-<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
-  <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md text-center space-y-4">
-    <h1 class="text-2xl font-bold text-green-600">Welcome, {{ student.user.get_full_name }}</h1>
-    <p class="text-gray-700">Matric No: {{ student.matric_no }}</p>
+<body class="min-h-screen gradient-bg">
+  <!-- Navigation Header -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard - SecureTest</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.6s ease-out',
+            'pulse-slow': 'pulse 3s infinite'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+  </style>
+</head>
+<body class="min-h-screen gradient-bg">
+  <!-- Navigation Header -->
+  <nav class="glass-effect text-white p-4 shadow-lg">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold">SecureTest Portal</h1>
+          <p class="text-sm opacity-75">Student Dashboard</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="text-right">
+          <p class="font-semibold">{{ student.user.get_full_name|default:"Student" }}</p>
+          <p class="text-sm opacity-75">{{ student.matric_no }}</p>
+        </div>
+        <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition-colors">
+          Logout
+        </button>
+      </div>
+    </div>
+  </nav>
 
+  <div class="max-w-7xl mx-auto p-6 space-y-6">
+    <!-- Welcome Section -->
+    <div class="glass-effect rounded-2xl p-6 text-white animate-fade-in">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-3xl font-bold mb-2">Welcome back, {{ student.user.username|default:"Student" }}!</h2>
+          <p class="text-lg opacity-90">Ready to take your exams? Let's check your eligibility status.</p>
+        </div>
+        <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center animate-pulse-slow">
+          <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 animate-slide-up">
+      <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Courses</p>
+            <p class="text-2xl font-bold text-gray-800">{{ eligible_courses|length|add:2 }}</p>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Eligible Exams</p>
+            <p class="text-2xl font-bold text-green-600">{{ eligible_courses|length }}</p>
+          </div>
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Avg. Attendance</p>
+            <p class="text-2xl font-bold text-blue-600">
+              {% if eligible_courses %}
+                {% widthratio eligible_courses.0.attendance_percentage 1 1 %}%
+              {% else %}
+                0%
+              {% endif %}
+            </p>
+          </div>
+          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Exam Status</p>
+            <p class="text-2xl font-bold {% if eligible_courses %}text-green-600{% else %}text-red-600{% endif %}">
+              {% if eligible_courses %}Ready{% else %}Blocked{% endif %}
+            </p>
+          </div>
+          <div class="w-12 h-12 {% if eligible_courses %}bg-green-100{% else %}bg-red-100{% endif %} rounded-lg flex items-center justify-center">
+            {% if eligible_courses %}
+              <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+            {% else %}
+              <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+              </svg>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Eligible Courses -->
+      <div class="lg:col-span-2 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+  <!-- Header with gradient background -->
+  <div class="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+    <div class="flex items-center space-x-3">
+      <svg class="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        <path fill-rule="evenodd" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" clip-rule="evenodd"/>
+      </svg>
+      <div>
+        <h3 class="text-xl font-bold tracking-tight">Eligible Courses & Exams</h3>
+        <p class="mt-1 text-blue-100 opacity-90 text-sm">Courses you can take exams for (≥75% attendance)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content area -->
+  <div class="divide-y divide-gray-200">
     {% if eligible_courses %}
-      <h2 class="text-xl font-semibold text-gray-800 mt-4">Eligible Courses:</h2>
-      <ul class="list-disc list-inside text-gray-700">
+      <div class="space-y-4 p-6">
         {% for rec in eligible_courses %}
-          <li>{{ rec.course.code }} - {{ rec.course.title }}</li>
+        <div class="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-all duration-200 ease-in-out">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <h4 class="text-lg font-semibold text-gray-900 truncate">{{ rec.course.code }}</h4>
+              <p class="text-gray-600 mt-1">{{ rec.course.title }}</p>
+              
+              <div class="mt-3 flex items-center">
+                <div class="w-full sm:w-40 bg-gray-100 rounded-full h-2.5 mr-3">
+                  <div 
+                    class="h-2.5 rounded-full {% if rec.attendance_percentage >= 90 %}bg-green-500{% elif rec.attendance_percentage >= 75 %}bg-blue-500{% else %}bg-yellow-500{% endif %} w-[{{ rec.attendance_percentage }}%]" 
+                  ></div>
+                </div>
+                <span class="text-sm font-medium {% if rec.attendance_percentage >= 90 %}text-green-600{% elif rec.attendance_percentage >= 75 %}text-blue-600{% else %}text-yellow-600{% endif %}">
+                  {{ rec.attendance_percentage }}% attendance
+                </span>
+              </div>
+            </div>
+            
+            <div class="sm:ml-4 flex-shrink-0">
+              {% with exam=rec.course.exam_set.first %}
+  {% if exam and exam.slug %}
+    <a href="{% url 'exam_questions' exam.slug %}">
+      <button title="start-exam" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+        Start Exam
+      </button>
+    </a>
+  {% else %}
+    <button class="w-full sm:w-auto bg-gray-400 text-white px-5 py-2.5 rounded-lg" disabled>
+      Exam Not Available
+    </button>
+  {% endif %}
+{% endwith %}
+            </div>
+          </div>
+        </div>
         {% endfor %}
-      </ul>
-      <a href="#" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">View Dummy Exam</a>
+      </div>
     {% else %}
-      <p class="text-red-500 mt-4 font-semibold">You are not eligible for exams.</p>
+      <div class="text-center p-8">
+        <div class="mx-auto h-16 w-16 text-gray-400">
+          <svg fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <h4 class="mt-3 text-lg font-semibold text-gray-900">No Eligible Courses</h4>
+        <p class="mt-2 text-gray-600 max-w-md mx-auto">
+          You need at least 75% attendance in a course to be eligible for exams.
+        </p>
+      </div>
     {% endif %}
   </div>
+</div>
+      <!-- Quick Actions & Info -->
+      <div class="space-y-6">
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+            </svg>
+            Quick Actions
+          </h3>
+          <div class="space-y-3">
+            <button onclick="viewProfile()" class="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-gray-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                </svg>
+                <span class="font-medium">View Profile</span>
+              </div>
+            </button>
+            <button onclick="viewAttendance()" class="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-gray-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                  <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 102 0V3h2v1a1 1 0 102 0V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45-1.5a1.5 1.5 0 103 0 1.5 1.5 0 00-3 0z" clip-rule="evenodd"/>
+                </svg>
+                <span class="font-medium">View Attendance</span>
+              </div>
+            </button>
+            <button onclick="examHistory()" class="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-gray-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                </svg>
+                <span class="font-medium">Exam History</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            System Status
+          </h3>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Authentication</span>
+              <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Active</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Fingerprint</span>
+              <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Registered</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Exam Portal</span>
+              <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Online</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Info -->
+    <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+      <p class="text-gray-600 mb-2">
+        <strong>Important:</strong> You must maintain at least 75% attendance to remain eligible for examinations.
+      </p>
+      <p class="text-sm text-gray-500">
+        Secure authentication powered by biometric fingerprint technology • Last login: <span id="currentTime"></span>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Display current time
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('currentTime').textContent = now.toLocaleString();
+    }
+    updateTime();
+
+    // Function handler
+
+    function viewProfile() {
+      alert('Profile management coming soon!');
+    }
+
+    function viewAttendance() {
+      alert('Detailed attendance report coming soon!');
+    }
+
+    function examHistory() {
+      alert('Exam history and results coming soon!');
+    }
+
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout/';
+      }
+    }
+
+    // Add some interactivity
+    document.addEventListener('DOMContentLoaded', function() {
+      // Animate cards on scroll
+      const cards = document.querySelectorAll('.bg-white');
+      cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-2px)';
+        });
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0)';
+        });
+      });
+    });
+  </script>
+</body>
+</html>
 </body>
 </html>

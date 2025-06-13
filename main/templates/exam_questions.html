@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ exam.title }} - Questions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Exam Header -->
+    <div class="text-center mb-10">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ exam.title }}</h1>
+      <div class="w-20 h-1 bg-blue-600 mx-auto"></div>
+    </div>
+
+    <!-- Questions List -->
+    <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+      <ol class="divide-y divide-gray-200">
+        {% for q in questions %}
+        <li class="p-6 hover:bg-gray-50 transition-colors duration-150">
+          <div class="flex items-start">
+            <!-- Question Number -->
+            <div class="flex-shrink-0 bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center mr-4 font-medium">
+              {{ forloop.counter }}
+            </div>
+            
+            <!-- Question Content -->
+            <div class="flex-1 min-w-0">
+              <h2 class="text-lg font-semibold text-gray-800 mb-4">{{ q.question_text }}</h2>
+              
+              <!-- Options -->
+              <ul class="space-y-3">
+                <li class="flex items-start">
+                  <span class="bg-gray-100 text-gray-800 rounded px-2 py-1 text-sm font-medium mr-3">A</span>
+                  <span class="text-gray-700">{{ q.option_a }}</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="bg-gray-100 text-gray-800 rounded px-2 py-1 text-sm font-medium mr-3">B</span>
+                  <span class="text-gray-700">{{ q.option_b }}</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="bg-gray-100 text-gray-800 rounded px-2 py-1 text-sm font-medium mr-3">C</span>
+                  <span class="text-gray-700">{{ q.option_c }}</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="bg-gray-100 text-gray-800 rounded px-2 py-1 text-sm font-medium mr-3">D</span>
+                  <span class="text-gray-700">{{ q.option_d }}</span>
+                </li>
+              </ul>
+              
+              <!-- Correct Answer -->
+              <div class="mt-4 pt-4 border-t border-gray-200">
+                <div class="inline-flex items-center bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  Correct: {{ q.correct_option }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-8 text-center text-gray-500 text-sm">
+      <p>Total Questions: {{ questions|length }}</p>
+    </div>
+  </div>
+</body>
+</html>

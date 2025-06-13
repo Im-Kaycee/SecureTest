@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Student, Course, CourseRegistration, AttendanceRecord, Exam, ExamQuestion
-
+from .forms import ExamQuestionForm
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
     list_display = ('user', 'matric_no', 'created_at')
@@ -23,6 +23,11 @@ class AttendanceRecordAdmin(admin.ModelAdmin):
 class ExamAdmin(admin.ModelAdmin):
     list_display = ('title', 'course', 'start_time', 'end_time')
 
-@admin.register(ExamQuestion)
+from django.contrib import admin
+from .models import ExamQuestion
+
 class ExamQuestionAdmin(admin.ModelAdmin):
-    list_display = ('exam', 'question_text', 'correct_option')
+    form = ExamQuestionForm
+    list_display = ['exam', 'question_text', 'correct_option']
+
+admin.site.register(ExamQuestion, ExamQuestionAdmin)

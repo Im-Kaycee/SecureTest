@@ -69,7 +69,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'SecureTest.wsgi.application'
 
-
+# settings.py
+FERNET_KEY = b'kp6PnZm16UE40Nf-rODzvG_GHdtwKuGwl_lE8kMxYuY='
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
