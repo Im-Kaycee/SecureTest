@@ -168,5 +168,5 @@ Access via the HTTPS ngrok link from your mobile or another device.
 
 ## 👨‍💻 Author
 
-Built by [Your Name]  
-Final Year Project – Department of [Your Department Name], [Your School Name]
+Built by Kaycee
+
