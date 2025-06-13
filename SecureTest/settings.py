@@ -70,7 +70,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'SecureTest.wsgi.application'
 
 # settings.py
-FERNET_KEY = b'kp6PnZm16UE40Nf-rODzvG_GHdtwKuGwl_lE8kMxYuY='
+from decouple import config
+from cryptography.fernet import Fernet
+
+fernet_key = config('FERNET_KEY')
+cipher_suite = Fernet(fernet_key)
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
